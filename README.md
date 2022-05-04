@@ -10,6 +10,15 @@ Created by [@tinchoabbate](https://twitter.com/tinchoabbate)
 
 Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
 
+## Solutions
+
+1. [Unstoppable Lender](https://github.com/avichalp/damn-vulnerable-defi/blob/master/test/unstoppable/unstoppable.challenge.js)
+
+```sh
+npm run unstoppable
+```
+
+
 ## Disclaimer
 
 All Solidity code, practices and patterns in this repository are DAMN VULNERABLE and for educational purposes only.
