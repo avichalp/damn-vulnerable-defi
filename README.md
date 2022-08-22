@@ -12,7 +12,7 @@
 
 - [X] Unstoppable Lender
 - [ ] Naive Receiver
-- [ ] Truster
+- [X] Truster
 - [ ] Side Entrance
 - [ ] The Rewarder
 - [ ] Selfie
@@ -38,6 +38,22 @@ Tests:
 
 ```sh
 npm run unstoppable
+```
+
+#### [Naive Truster](https://github.com/tinchoabbate/damn-vulnerable-defi/blob/0ec96d4c2f52b40ee5d16d24ff87ea5997de0d0d/test/truster/truster.challenge.js)
+The truster lending pool's flashLoan function takes a target contract address and any calldata along with the burrow amount and the borrower's address. 
+
+After granting the loan, the lending pool contract calls the target contract with the given calldata. Finally, it checks the flash loan condition. That is, if it is not true, it will revert.
+
+The attacker can exploit the lending pool by calling the flash loan function with the target address of the DVT token. For the calldata argument, it can pass in the calldata to trigger the ERC20 "approval" for attackers to withdraw the whole pool balance.
+
+It means at the time of granting the flash loan, the lending pool is also giving approval to the attacker to withdraw some pre-specified amount of DVT tokens (allowance) later.
+
+After the flash loan is paid back, the attacker can simply call the ERC20  to drain all DVT tokens from the lending pool to the attacker's address.
+
+Tests:
+```sh
+npm run truster
 ```
 
 
