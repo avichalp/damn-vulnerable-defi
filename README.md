@@ -4,7 +4,7 @@
 
 - Damn Vulnerable DeFi is a set of challenges to hack implementations of DeFi in Ethereum. 
 - It is created and maintained by [@tinchoabbate](https://twitter.com/tinchoabbate). 
-- Visit [damnvulnerabledefi.xyz](damnvulnerabledefi.xyz) to try out the challenges.
+- Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz) to try out the challenges.
 
 ## Solutions
 
