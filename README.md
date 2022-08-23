@@ -13,7 +13,7 @@
 - [X] Unstoppable Lender
 - [X] Naive Receiver
 - [X] Truster
-- [ ] Side Entrance
+- [X] Side Entrance
 - [ ] The Rewarder
 - [ ] Selfie
 - [ ] Compromised
@@ -67,6 +67,21 @@ After the flash loan is paid back, the attacker can simply call the ERC20  to dr
 Tests:
 ```sh
 npm run truster
+```
+
+#### [Side Entrance](https://github.com/tinchoabbate/damn-vulnerable-defi/blob/master/test/side-entrance/side-entrance.challenge.js)
+
+The flash loan function in this contract calls the execute function on the burrower contract. Also, the lending pool maintains the mapping of balances of the depositors. The deposit function increments the balance, and the withdraw function returns all the caller's deposits.
+
+The attacker can exploit the lending pool by deploying a malicious burrower. The borrower will take out a flash loan. It will implement an execute function that deposits the loan amount to the pool. 
+
+The flash loan constraint checks if the balance before the loan was granted is greater or equal to the balance after the loan is paid back. This constraint will be satisfied because the borrower deposited all the money back into the pool. 
+
+After the loan is paid back, the attacker can simply call the withdraw function to withdraw the flash loan amount they deposited while taking the flash loan to the borrower contract.
+
+Tests:
+```sh
+npm run side-entrance
 ```
 
 
