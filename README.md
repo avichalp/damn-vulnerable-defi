@@ -15,7 +15,7 @@
 - [X] Truster
 - [X] Side Entrance
 - [X] The Rewarder
-- [ ] Selfie
+- [X] Selfie
 - [ ] Compromised
 - [ ] Puppet
 - [ ] Puppet V2
@@ -96,6 +96,21 @@ Tests:
 ```sh
 npm run the-rewarder
 ```
+
+#### [Selfie](https://github.com/avichalp/damn-vulnerable-defi/blob/master/contracts/selfie/SelfieAttacker.sol)
+
+The lending pool that gives out flash loans also has a function that could drain all of its funds to a given address. Only the governance contract can call this function. 
+
+The governance contracts expose important two functions: `queueAction` and `executeAction`.  Anyone can enqueue an action if their balance of governance tokens is more than half the supply. 
+
+The attacker will deploy a burrower contract to take a flash loan and use it to enqueue a proposed action. The proposed action, in this case, is the calldata and the value to trigger funds drainage into the borrower's account.
+
+After the time delay (2 days), the attacker will call the `executeAction` with the given action id to trigger the attack. Finally, the attacker will drain the borrower's contract to send tokens to their EOA.
+
+```sh
+npm run selfie
+```
+
 
 ## Disclaimer
 
