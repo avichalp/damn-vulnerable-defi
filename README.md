@@ -11,7 +11,7 @@
 #### Status 
 
 - [X] Unstoppable Lender
-- [ ] Naive Receiver
+- [X] Naive Receiver
 - [X] Truster
 - [ ] Side Entrance
 - [ ] The Rewarder
@@ -40,7 +40,20 @@ Tests:
 npm run unstoppable
 ```
 
-#### [Naive Truster](https://github.com/tinchoabbate/damn-vulnerable-defi/blob/0ec96d4c2f52b40ee5d16d24ff87ea5997de0d0d/test/truster/truster.challenge.js)
+#### [Naive Receiver](https://github.com/tinchoabbate/damn-vulnerable-defi/blob/master/test/naive-receiver/naive-receiver.challenge.js) 
+The lending pool has a fee of 1 ETH for every flash loan it grants. It exposes a flash loan function that takes the amount and the borrower's address. 
+
+The goal of this challenge is to drain the burrower's balance. It has only 10 ETH. We
+(attacker) can call the flash loan function to make the pool give out a loan to the receiver contract.
+
+When the receiver pays back, it has to pay the 1 ETH fee on top of the principal amount. Giving the receiver 10 such loans will completely drain its balance.
+
+Tests:
+```sh
+npm run naive-receiver
+```
+
+#### [Truster](https://github.com/tinchoabbate/damn-vulnerable-defi/blob/0ec96d4c2f52b40ee5d16d24ff87ea5997de0d0d/test/truster/truster.challenge.js)
 The truster lending pool's flashLoan function takes a target contract address and any calldata along with the burrow amount and the borrower's address. 
 
 After granting the loan, the lending pool contract calls the target contract with the given calldata. Finally, it checks the flash loan condition. That is, if it is not true, it will revert.
