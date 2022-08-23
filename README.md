@@ -14,7 +14,7 @@
 - [X] Naive Receiver
 - [X] Truster
 - [X] Side Entrance
-- [ ] The Rewarder
+- [X] The Rewarder
 - [ ] Selfie
 - [ ] Compromised
 - [ ] Puppet
@@ -84,6 +84,18 @@ Tests:
 npm run side-entrance
 ```
 
+#### [The Rewarder](https://github.com/avichalp/damn-vulnerable-defi/blob/master/contracts/the-rewarder/RewardAttacker.sol)
+
+The attacker's goal in this challenge is to get the maximum reward tokens from the rewards pool. The rewards are paid out every 5 days. And it is proportional to the DVT tokens deposited in the rewards pool. 
+
+The attacker doesn't have any DVT tokens to deposit. In this case, the attacker will take a flash loan of DVT tokens from the lending pool and deposit it all in the rewarder pool. 
+
+Immediately, in the same transaction, it will call withdraw on the rewarder pool to get the reward tokens. After the attacker has received the reward tokens, they will return the flash loan.
+
+Tests:
+```sh
+npm run the-rewarder
+```
 
 ## Disclaimer
 
